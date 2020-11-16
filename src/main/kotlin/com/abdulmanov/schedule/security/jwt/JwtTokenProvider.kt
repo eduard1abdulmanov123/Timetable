@@ -1,5 +1,7 @@
 package com.abdulmanov.schedule.security.jwt
 
+import com.abdulmanov.schedule.models.AppUser
+import com.abdulmanov.schedule.repositories.AppUserRepository
 import com.abdulmanov.schedule.security.SecurityConstants
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
@@ -14,7 +16,10 @@ import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 @Component
-class JwtTokenProvider(private val userDetailsService: UserDetailsService) {
+class JwtTokenProvider(
+        private val appUserRepository: AppUserRepository,
+        private val userDetailsService: UserDetailsService
+) {
 
     private val secretKey = Base64.getEncoder().encodeToString(SecurityConstants.SECRET_KEY.toByteArray())
 
@@ -54,5 +59,11 @@ class JwtTokenProvider(private val userDetailsService: UserDetailsService) {
 
     fun getUsername(token: String): String {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).body.subject
+    }
+
+    fun getUser(request: HttpServletRequest): AppUser {
+        val token = resolveToken(request)!!
+        val username = getUsername(token)
+        return appUserRepository.findByUsername(username)!!
     }
 }

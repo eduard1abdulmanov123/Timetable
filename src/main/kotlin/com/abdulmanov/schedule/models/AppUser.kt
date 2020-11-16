@@ -5,15 +5,17 @@ import javax.persistence.*
 
 @Entity
 @Table(name = TABLE_NAME)
-class AppUser(
+data class AppUser @JvmOverloads constructor(
         @Id
         @Column(name = COLUMN_USERNAME)
         val username: String = "",
 
         @Column(name = COLUMN_PASSWORD)
-        val password: String = ""
+        val password: String = "",
+
+        @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+        val notes: Set<Note> = hashSetOf()
 ){
-    constructor(): this("", "")
 
     companion object{
         const val TABLE_NAME = "app_users"
