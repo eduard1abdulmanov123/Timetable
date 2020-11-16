@@ -12,6 +12,9 @@ data class AppUser @JvmOverloads constructor(
 
         @Column(name = COLUMN_PASSWORD)
         val password: String = "",
+        
+        @Column(name = COLUMN_CURRENT_TIMETABLE_ID)
+        val currentTimetableId: Int? = null,
 
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
         val notes: Set<Note> = hashSetOf()
@@ -22,5 +25,6 @@ data class AppUser @JvmOverloads constructor(
 
         const val COLUMN_USERNAME = "username"
         const val COLUMN_PASSWORD = "password"
+        const val COLUMN_CURRENT_TIMETABLE_ID = "current_timetable_id"
     }
 }

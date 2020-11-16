@@ -19,21 +19,47 @@ class NoteControllerV1(
     fun saveNote(request: HttpServletRequest, @RequestBody noteDto: NoteDto): ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
         val note = Note(content = noteDto.content, date = noteDto.date, visibility = noteDto.visibility, user = user)
-        val noteFromDatabase = noteRepository.save(note)
-        return ResponseEntity.ok(noteFromDatabase)
+        val createdNote = noteRepository.save(note)
+        return ResponseEntity.ok(createdNote)
     }
 
     @PostMapping("/update/{id}")
-    fun updateNote(@RequestBody noteDto: NoteDto, @PathVariable("id") noteId: String): ResponseEntity<Any>{
-        val note = noteRepository.findNoteById(noteId.toInt())
-        val newNote = note.copy(content = noteDto.content, date = noteDto.date, visibility = noteDto.visibility)
-        noteRepository.save(newNote)
-        return ResponseEntity.ok(hashMapOf("status" to "success"))
+    fun updateNote(request: HttpServletRequest, @RequestBody noteDto: NoteDto, @PathVariable("id") noteId: Int): ResponseEntity<Any>{
+        val user = jwtTokenProvider.getUser(request)
+        val oldNote = noteRepository.findById(noteId)
+
+        if(oldNote.isEmpty){
+            val body = hashMapOf("status" to "error", "message" to "Note $noteId does not exists")
+            return ResponseEntity.badRequest().body(body)
+        }
+
+        if(oldNote.get().user != user){
+            val body = hashMapOf("status" to "error", "message" to "You are not authorized to modify this note $noteId")
+            return ResponseEntity.badRequest().body(body)
+        }
+
+        val newNote = oldNote.get().copy(content = noteDto.content, date = noteDto.date, visibility = noteDto.visibility)
+        val modifiedNote = noteRepository.save(newNote)
+        return ResponseEntity.ok(modifiedNote)
     }
 
     @PostMapping("/delete/{id}")
-    fun deleteNote(@PathVariable("id") noteId: String): ResponseEntity<Any>{
-        noteRepository.deleteById(noteId.toInt())
+    fun deleteNote(request: HttpServletRequest, @PathVariable("id") noteId: Int): ResponseEntity<Any>{
+        val user = jwtTokenProvider.getUser(request)
+        val oldNote = noteRepository.findById(noteId)
+
+        if(oldNote.isEmpty){
+            val body = hashMapOf("status" to "error", "message" to "Note $noteId does not exists")
+            return ResponseEntity.badRequest().body(body)
+        }
+
+        if(oldNote.get().user != user){
+            val body = hashMapOf("status" to "error", "message" to "You are not authorized to modify this note $noteId")
+            return ResponseEntity.badRequest().body(body)
+        }
+
+        noteRepository.deleteById(noteId)
+        
         return ResponseEntity.ok(hashMapOf("status" to "success"))
     }
 

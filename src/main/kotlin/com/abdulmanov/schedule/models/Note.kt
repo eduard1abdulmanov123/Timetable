@@ -30,9 +30,9 @@ data class Note @JvmOverloads constructor(
     companion object{
         const val TABLE_NAME = "note"
 
-        const val COLUMN_ID = "id"
-        const val COLUMN_CONTENT = "content"
-        const val COLUMN_DATE = "date"
-        const val COLUMN_VISIBILITY = "visibility"
+        const val COLUMN_ID = "note_id"
+        const val COLUMN_CONTENT = "note_content"
+        const val COLUMN_DATE = "note_date"
+        const val COLUMN_VISIBILITY = "note_visibility"
     }
 }
