@@ -2,8 +2,6 @@ package com.abdulmanov.schedule.models
 
 import com.abdulmanov.schedule.models.Note.Companion.TABLE_NAME
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
 import javax.persistence.*
 
 @Entity
@@ -12,7 +10,7 @@ data class Note @JvmOverloads constructor(
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         @Column(name = COLUMN_ID)
-        val id: Long = -1,
+        val id: Int = -1,
 
         @Column(name = COLUMN_CONTENT)
         val content: String = "",
@@ -24,7 +22,7 @@ data class Note @JvmOverloads constructor(
         val visibility: Boolean = false,
 
         @JsonIgnore
-        @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+        @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = AppUser.COLUMN_USERNAME, nullable = false)
         val user: AppUser
 ) {

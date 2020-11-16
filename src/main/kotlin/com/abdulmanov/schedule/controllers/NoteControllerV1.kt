@@ -16,14 +16,32 @@ class NoteControllerV1(
 ) {
 
     @PostMapping("/save")
-    fun save(request: HttpServletRequest, @RequestBody noteDto: NoteDto): ResponseEntity<Any>{
-        val note = Note(
-                content = noteDto.content,
-                date = noteDto.date,
-                visibility = noteDto.visibility,
-                user = jwtTokenProvider.getUser(request)
-        )
+    fun saveNote(request: HttpServletRequest, @RequestBody noteDto: NoteDto): ResponseEntity<Any>{
+        val user = jwtTokenProvider.getUser(request)
+        val note = Note(content = noteDto.content, date = noteDto.date, visibility = noteDto.visibility, user = user)
         val noteFromDatabase = noteRepository.save(note)
         return ResponseEntity.ok(noteFromDatabase)
     }
+
+    @PostMapping("/update/{id}")
+    fun updateNote(@RequestBody noteDto: NoteDto, @PathVariable("id") noteId: String): ResponseEntity<Any>{
+        val note = noteRepository.findNoteById(noteId.toInt())
+        val newNote = note.copy(content = noteDto.content, date = noteDto.date, visibility = noteDto.visibility)
+        noteRepository.save(newNote)
+        return ResponseEntity.ok(hashMapOf("status" to "success"))
+    }
+
+    @PostMapping("/delete/{id}")
+    fun deleteNote(@PathVariable("id") noteId: String): ResponseEntity<Any>{
+        noteRepository.deleteById(noteId.toInt())
+        return ResponseEntity.ok(hashMapOf("status" to "success"))
+    }
+
+    @GetMapping("/")
+    fun getNotes(request: HttpServletRequest): ResponseEntity<Any>{
+        val user = jwtTokenProvider.getUser(request)
+        val notes = noteRepository.findByUser(user)
+        return ResponseEntity.ok(notes)
+    }
+
 }
