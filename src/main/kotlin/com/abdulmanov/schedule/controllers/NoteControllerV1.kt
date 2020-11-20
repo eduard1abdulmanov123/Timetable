@@ -59,7 +59,7 @@ class NoteControllerV1(
         }
 
         noteRepository.deleteById(noteId)
-        
+
         return ResponseEntity.ok(hashMapOf("status" to "success"))
     }
 
