@@ -2,6 +2,7 @@ package com.abdulmanov.schedule.models
 
 import com.abdulmanov.schedule.models.CanceledClass.Companion.TABLE_NAME
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import javax.persistence.*
 
 @Entity
@@ -16,7 +17,7 @@ data class CanceledClass @JvmOverloads constructor(
         val date: Long = -1,
 
         @JsonIgnore
-        @ManyToOne(fetch = FetchType.LAZY)
+        @ManyToOne(fetch = FetchType.EAGER)
         @JoinColumn(name = MultipleClass.COLUMN_ID, nullable = false)
         val multipleClass: MultipleClass
 ){

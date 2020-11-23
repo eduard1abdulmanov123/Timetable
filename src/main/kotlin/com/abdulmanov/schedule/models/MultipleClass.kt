@@ -1,6 +1,7 @@
 package com.abdulmanov.schedule.models
 
 import com.abdulmanov.schedule.models.MultipleClass.Companion.TABLE_NAME
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
@@ -34,13 +35,13 @@ data class MultipleClass @JvmOverloads constructor(
         val endOfClass: String = "",
 
         @Column(name = COLUMN_DAY_OF_WEEK)
-        val dayOfWeek: String = "",
+        val dayOfWeek: Int = 0,
 
         @Column(name = COLUMN_PERIODICITY)
         val periodicity: Int = 0,
 
-        @OneToMany(fetch = FetchType.LAZY, mappedBy = "multipleClass")
-        val canceledClasses: Set<CanceledClass> = hashSetOf(),
+        @OneToMany(fetch = FetchType.EAGER, mappedBy = "multipleClass")
+        val canceledClasses: List<CanceledClass> = listOf(),
 
         @JsonIgnore
         @ManyToOne(fetch = FetchType.LAZY)

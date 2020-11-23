@@ -47,7 +47,21 @@ class TimetableControllerV1(
     }
 
     @RequestMapping("/")
-    fun getSchedule():String{
-        return "dasdadadadadadadad"
+    fun get(request: HttpServletRequest):ResponseEntity<Any>{
+        val user = jwtTokenProvider.getUser(request)
+
+        if(user.currentTimetableId == null){
+            val body = hashMapOf("status" to "error", "message" to "Данный пользователь не подключен к расписанию")
+            return ResponseEntity.badRequest().body(body)
+        }
+
+        val timetable = timetableRepository.findById(user.currentTimetableId)
+
+        if(timetable.isEmpty){
+            val body = hashMapOf("status" to "error", "message" to "Timetable ${user.currentTimetableId} does not exists")
+            return ResponseEntity.badRequest().body(body)
+        }
+
+        return ResponseEntity.ok(timetable)
     }
 }

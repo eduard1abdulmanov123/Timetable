@@ -24,10 +24,10 @@ data class Timetable @JvmOverloads constructor(
         val weekNumber: Int = 0,
 
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "timetable")
-        val multipleClasses: Set<MultipleClass> = hashSetOf(),
+        val multipleClasses: List<MultipleClass> = listOf(),
 
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "timetable")
-        val oneTimeClasses: Set<OneTimeClass> = hashSetOf()
+        val oneTimeClasses: List<OneTimeClass> = listOf()
 ) {
 
     companion object{
