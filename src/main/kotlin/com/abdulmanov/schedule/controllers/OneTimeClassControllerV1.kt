@@ -1,109 +1,64 @@
 package com.abdulmanov.schedule.controllers
 
+import com.abdulmanov.schedule.createBadRequest
+import com.abdulmanov.schedule.createSuccess
 import com.abdulmanov.schedule.dto.OneTimeClassDto
-import com.abdulmanov.schedule.models.AppUser
-import com.abdulmanov.schedule.models.OneTimeClass
-import com.abdulmanov.schedule.models.Timetable
-import com.abdulmanov.schedule.repositories.AppUserRepository
-import com.abdulmanov.schedule.repositories.OneTimeClassRepository
-import com.abdulmanov.schedule.repositories.TimetableRepository
 import com.abdulmanov.schedule.security.jwt.JwtTokenProvider
+import com.abdulmanov.schedule.service.OneTimeClassService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 @RestController
-@RequestMapping("/api/v1/onetimeclass")
+@RequestMapping("/api/v1/onetime_class")
 class OneTimeClassControllerV1(
-        private val appUserRepository: AppUserRepository,
-        private val timetableRepository: TimetableRepository,
-        private val oneTimeClassRepository: OneTimeClassRepository,
+        private val oneTimeClassService: OneTimeClassService,
         private val jwtTokenProvider: JwtTokenProvider
 ) {
 
     @PostMapping("/create")
-    fun create(request: HttpServletRequest, @RequestBody oneTimeClassDto:OneTimeClassDto): ResponseEntity<Any>{
+    fun create(
+            request: HttpServletRequest,
+            @RequestBody oneTimeClassDto:OneTimeClassDto
+    ): ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
-        val timetable = getTimetable(user)
 
-        val oneTimeClass = mapOneTimeClassDtoToDatabaseModel(timetable, oneTimeClassDto)
-        val createdOneTimeClass = oneTimeClassRepository.save(oneTimeClass)
-
-        return ResponseEntity.ok(createdOneTimeClass)
+        return try {
+            val createdOneTimeClass = oneTimeClassService.create(user, oneTimeClassDto)
+            ResponseEntity.ok(createdOneTimeClass)
+        }catch (e: Exception){
+            e.createBadRequest()
+        }
     }
 
     @PostMapping("/update/{id}")
-    fun update(@RequestBody oneTimeClassDto:OneTimeClassDto, @PathVariable("id") oneTimeClassId: Int): ResponseEntity<Any>{
-        val oldOneTimeClass = oneTimeClassRepository.findById(oneTimeClassId)
+    fun update(
+            request: HttpServletRequest,
+            @PathVariable("id") oneTimeClassId: Int,
+            @RequestBody oneTimeClassDto:OneTimeClassDto
+    ): ResponseEntity<Any>{
+        val user = jwtTokenProvider.getUser(request)
 
-        if(oldOneTimeClass.isEmpty){
-            val body = hashMapOf("status" to "error", "message" to "OneTimeClass $oneTimeClassId does not exists")
-            return ResponseEntity.badRequest().body(body)
+        return try {
+            val modifiedOneTimeClass = oneTimeClassService.update(user, oneTimeClassId, oneTimeClassDto)
+            ResponseEntity.ok(modifiedOneTimeClass)
+        }catch (e: Exception){
+            e.createBadRequest()
         }
-
-        val newOneTimeClass = oldOneTimeClass.get().copy(
-                nameSubject = oneTimeClassDto.nameSubject,
-                nameTeacher = oneTimeClassDto.nameTeacher,
-                audience = oneTimeClassDto.audience,
-                typeClass = oneTimeClassDto.typeClass,
-                color = oneTimeClassDto.color,
-                startOfClass = oneTimeClassDto.startOfClass,
-                endOfClass = oneTimeClassDto.endOfClass,
-                dateOfClass = oneTimeClassDto.dateOfClass
-        )
-
-        val modifiedOneTimeClass = oneTimeClassRepository.save(newOneTimeClass)
-        return ResponseEntity.ok(modifiedOneTimeClass)
     }
 
     @PostMapping("/delete/{id}")
-    fun delete(request: HttpServletRequest, @PathVariable("id") oneTimeClassId: Int): ResponseEntity<Any>{
-        val oldOneTimeClass = oneTimeClassRepository.findById(oneTimeClassId)
-
-        if(oldOneTimeClass.isEmpty){
-            val body = hashMapOf("status" to "error", "message" to "OneTimeClass $oneTimeClassId does not exists")
-            return ResponseEntity.badRequest().body(body)
-        }
-
-        oneTimeClassRepository.deleteById(oneTimeClassId)
-
-        return ResponseEntity.ok(hashMapOf("status" to "success"))
-    }
-
-    @GetMapping("/")
-    fun get(request: HttpServletRequest): ResponseEntity<Any>{
+    fun delete(
+            request: HttpServletRequest,
+            @PathVariable("id") oneTimeClassId: Int
+    ): ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
-        val timetable = timetableRepository.findById(user.currentTimetableId!!).get()
-        val oneTimeClasses = oneTimeClassRepository.findByTimetable(timetable)
-        return ResponseEntity.ok(oneTimeClasses)
-    }
 
-    private fun getTimetable(user: AppUser): Timetable {
-        return if(user.currentTimetableId == null) {
-            val timetable = Timetable(creatorUsername = user.username, dateCreated = Calendar.getInstance().timeInMillis, weekNumber = 0)
-            val createdTimetable = timetableRepository.save(timetable)
-
-            val newUser = user.copy(currentTimetableId = createdTimetable.id)
-            appUserRepository.save(newUser)
-
-            createdTimetable
-        }else{
-            timetableRepository.findById(user.currentTimetableId).get()
+        return try {
+            oneTimeClassService.delete(user, oneTimeClassId)
+            createSuccess()
+        }catch (e: Exception){
+            e.createBadRequest()
         }
-    }
-
-    private fun mapOneTimeClassDtoToDatabaseModel(timetable: Timetable, oneTimeClassDto: OneTimeClassDto): OneTimeClass{
-        return OneTimeClass(
-                nameSubject = oneTimeClassDto.nameSubject,
-                nameTeacher = oneTimeClassDto.nameTeacher,
-                audience = oneTimeClassDto.audience,
-                typeClass = oneTimeClassDto.typeClass,
-                color = oneTimeClassDto.color,
-                startOfClass = oneTimeClassDto.startOfClass,
-                endOfClass = oneTimeClassDto.endOfClass,
-                dateOfClass = oneTimeClassDto.dateOfClass,
-                timetable = timetable
-        )
     }
 }

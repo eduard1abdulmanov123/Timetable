@@ -1,67 +1,52 @@
 package com.abdulmanov.schedule.controllers
 
-import com.abdulmanov.schedule.models.Timetable
-import com.abdulmanov.schedule.repositories.AppUserRepository
-import com.abdulmanov.schedule.repositories.TimetableRepository
+import com.abdulmanov.schedule.createBadRequest
 import com.abdulmanov.schedule.security.jwt.JwtTokenProvider
+import com.abdulmanov.schedule.service.TimetableService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 @RestController
 @RequestMapping("/api/v1/timetable")
 class TimetableControllerV1(
-        private val appUserRepository: AppUserRepository,
-        private val timetableRepository: TimetableRepository,
+        private val timetableService: TimetableService,
         private val jwtTokenProvider: JwtTokenProvider
 ) {
 
     @PostMapping("/create")
-    fun createTimetable(request: HttpServletRequest): ResponseEntity<Any>{
+    fun create(request: HttpServletRequest): ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
 
-        val timetable = Timetable(creatorUsername = user.username, dateCreated = Calendar.getInstance().timeInMillis, weekNumber = 0)
-        val createdTimetable = timetableRepository.save(timetable)
-
-        val newUser = user.copy(currentTimetableId = createdTimetable.id)
-        appUserRepository.save(newUser)
-
-        return ResponseEntity.ok(createdTimetable)
+        return try{
+            val createdTimetable = timetableService.create(user)
+            ResponseEntity.ok(createdTimetable)
+        }catch (e:Exception){
+            e.createBadRequest()
+        }
     }
 
     @PostMapping("/join/{id}")
-    fun joinTheTimetable(request: HttpServletRequest, @PathVariable("id") timetableId: Int): ResponseEntity<Any>{
+    fun join(request: HttpServletRequest, @PathVariable("id") timetableId: Int): ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
-        val timetable = timetableRepository.findById(timetableId)
 
-        if(timetable.isEmpty){
-            val body = hashMapOf("status" to "error", "message" to "Timetable $timetableId does not exists")
-            return ResponseEntity.badRequest().body(body)
+        return try {
+            val timetable = timetableService.join(user, timetableId)
+            ResponseEntity.ok(timetable)
+        }catch (e:Exception){
+            e.createBadRequest()
         }
-
-        val newUser = user.copy(currentTimetableId = timetable.get().id)
-        appUserRepository.save(newUser)
-
-        return ResponseEntity.ok(timetable)
     }
 
     @RequestMapping("/")
     fun get(request: HttpServletRequest):ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
 
-        if(user.currentTimetableId == null){
-            val body = hashMapOf("status" to "error", "message" to "Данный пользователь не подключен к расписанию")
-            return ResponseEntity.badRequest().body(body)
+        return try {
+            val timetable = timetableService.get(user)
+            ResponseEntity.ok(timetable)
+        }catch (e:Exception){
+            e.createBadRequest()
         }
-
-        val timetable = timetableRepository.findById(user.currentTimetableId)
-
-        if(timetable.isEmpty){
-            val body = hashMapOf("status" to "error", "message" to "Timetable ${user.currentTimetableId} does not exists")
-            return ResponseEntity.badRequest().body(body)
-        }
-
-        return ResponseEntity.ok(timetable)
     }
 }
