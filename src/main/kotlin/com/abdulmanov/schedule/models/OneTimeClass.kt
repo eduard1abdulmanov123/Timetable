@@ -34,7 +34,7 @@ data class OneTimeClass @JvmOverloads constructor(
         val endOfClass: String = "",
 
         @Column(name = COLUMN_DATE_OF_CLASS)
-        val dateOfClass: Long = 0,
+        val dateOfClass: String = "",
 
         @JsonIgnore
         @ManyToOne(fetch = FetchType.LAZY)

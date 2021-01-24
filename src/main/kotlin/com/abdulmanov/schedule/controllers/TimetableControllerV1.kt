@@ -1,6 +1,7 @@
 package com.abdulmanov.schedule.controllers
 
 import com.abdulmanov.schedule.createBadRequest
+import com.abdulmanov.schedule.dto.TimetableInfoDto
 import com.abdulmanov.schedule.security.jwt.JwtTokenProvider
 import com.abdulmanov.schedule.service.TimetableService
 import org.springframework.http.ResponseEntity
@@ -15,11 +16,11 @@ class TimetableControllerV1(
 ) {
 
     @PostMapping("/create")
-    fun create(request: HttpServletRequest): ResponseEntity<Any>{
+    fun create(request: HttpServletRequest, @RequestBody timetableInfoDto: TimetableInfoDto): ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
 
         return try{
-            val createdTimetable = timetableService.create(user)
+            val createdTimetable = timetableService.create(user, timetableInfoDto)
             ResponseEntity.ok(createdTimetable)
         }catch (e:Exception){
             e.createBadRequest()
@@ -38,6 +39,18 @@ class TimetableControllerV1(
         }
     }
 
+    @PostMapping("/changeTypeWeek")
+    fun changeTypeWeek(request: HttpServletRequest, @RequestBody timetableInfoDto: TimetableInfoDto): ResponseEntity<Any> {
+        val user = jwtTokenProvider.getUser(request)
+
+        return try {
+            val timetable = timetableService.changeTypeWeek(user, timetableInfoDto)
+            ResponseEntity.ok(timetable)
+        }catch (e:Exception){
+            e.createBadRequest()
+        }
+    }
+
     @RequestMapping("/")
     fun get(request: HttpServletRequest):ResponseEntity<Any>{
         val user = jwtTokenProvider.getUser(request)
@@ -46,7 +59,11 @@ class TimetableControllerV1(
             val timetable = timetableService.get(user)
             ResponseEntity.ok(timetable)
         }catch (e:Exception){
-            e.createBadRequest()
+            if(e.message == TimetableService.EMPTY_TIMETABLE_ERROR){
+                e.createBadRequest("empty_timetable")
+            }else {
+                e.createBadRequest()
+            }
         }
     }
 }

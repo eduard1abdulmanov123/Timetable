@@ -12,6 +12,9 @@ interface AppUserRepository : JpaRepository<AppUser, String> {
     @Query("SELECT * FROM ${AppUser.TABLE_NAME} WHERE ${AppUser.COLUMN_USERNAME} = :username", nativeQuery = true)
     fun findByUsername(@Param("username") username: String): AppUser?
 
+    @Query("SELECT * FROM ${AppUser.TABLE_NAME} WHERE ${AppUser.COLUMN_CURRENT_TIMETABLE_ID} = :timetableId", nativeQuery = true)
+    fun findByCurrentTimetableId(@Param("timetableId") timetableId: Int): List<AppUser>
+
     @Query("SELECT EXISTS (SELECT * FROM ${AppUser.TABLE_NAME} WHERE ${AppUser.COLUMN_USERNAME} = :username)", nativeQuery = true)
     fun existsByUsername(@Param("username") username: String): Boolean
 }

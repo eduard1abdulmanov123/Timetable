@@ -79,7 +79,7 @@ class NoteControllerV1(
         val currentUser = jwtTokenProvider.getUser(request)
 
         return try{
-            val notes = noteService.getTimetableOwnerNotes(currentUser).filter { it.visibility }
+            val notes = noteService.getTimetableOwnerNotes(currentUser)
             ResponseEntity.ok(notes)
         }catch (e:Exception){
             e.createBadRequest()

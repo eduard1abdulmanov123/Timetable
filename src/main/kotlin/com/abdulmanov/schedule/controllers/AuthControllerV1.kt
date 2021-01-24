@@ -1,8 +1,8 @@
 package com.abdulmanov.schedule.controllers
 
+import com.abdulmanov.schedule.dto.UserDto
 import com.abdulmanov.schedule.models.AppUser
 import com.abdulmanov.schedule.repositories.AppUserRepository
-import com.abdulmanov.schedule.security.SecurityConstants
 import com.abdulmanov.schedule.security.jwt.JwtTokenProvider
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,16 +23,16 @@ class AuthControllerV1(
         private val jwtTokenProvider: JwtTokenProvider,
         private val passwordEncoder: PasswordEncoder
 ){
-
     @PostMapping("/sing-up")
-    fun singUp(@RequestBody appUser: AppUser): ResponseEntity<HashMap<String, Any>>{
+    fun singUp(@RequestBody userDto: UserDto): ResponseEntity<HashMap<String, Any?>>{
         return try {
-            if(userRepository.existsByUsername(appUser.username)){
+            if(userRepository.existsByUsername(userDto.username)){
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
 
-            saveUserToDatabase(appUser)
-            authenticate(appUser)
+            val appUser = saveUserToDatabase(userDto)
+
+            authenticate(userDto.username, userDto.password)
             generateAnswerWithJwtToken(appUser)
         }catch (e: AuthenticationException){
             ResponseEntity(HttpStatus.FORBIDDEN)
@@ -40,31 +40,39 @@ class AuthControllerV1(
     }
 
     @PostMapping("/sing-in")
-    fun singIn(@RequestBody appUser: AppUser): ResponseEntity<HashMap<String, Any>> {
+    fun singIn(@RequestBody userDto: UserDto): ResponseEntity<HashMap<String, Any?>> {
         return try{
-            if(!userRepository.existsByUsername(appUser.username)){
+            if(!userRepository.existsByUsername(userDto.username)){
                 return ResponseEntity(HttpStatus.BAD_REQUEST)
             }
 
-            authenticate(appUser)
+            val appUser = userRepository.findByUsername(userDto.username)!!
+
+            authenticate(userDto.username, userDto.password)
             generateAnswerWithJwtToken(appUser)
         }catch (e: AuthenticationException){
             ResponseEntity(HttpStatus.FORBIDDEN)
         }
     }
 
-    private fun saveUserToDatabase(appUser: AppUser){
-        val user = AppUser(username = appUser.username, password = passwordEncoder.encode(appUser.password))
-        userRepository.save(user)
+    private fun saveUserToDatabase(userDto: UserDto): AppUser{
+        val user = AppUser(username = userDto.username, password = passwordEncoder.encode(userDto.password))
+        return userRepository.save(user)
     }
 
-    private fun authenticate(appUser: AppUser){
-        val usernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(appUser.username, appUser.password)
+    private fun authenticate(username: String, password: String){
+        val usernamePasswordAuthenticationToken = UsernamePasswordAuthenticationToken(username, password)
         authenticationManager.authenticate(usernamePasswordAuthenticationToken)
     }
 
-    private fun generateAnswerWithJwtToken(appUser: AppUser): ResponseEntity<HashMap<String, Any>>{
+    private fun generateAnswerWithJwtToken(appUser: AppUser): ResponseEntity<HashMap<String, Any?>>{
         val token = jwtTokenProvider.createToken(appUser.username)
-        return ResponseEntity.ok(hashMapOf<String, Any>("username" to appUser.username, "token" to token))
+        return ResponseEntity.ok(
+                hashMapOf(
+                        "username" to appUser.username,
+                        "token" to token,
+                        "currentTimetableId" to appUser.currentTimetableId
+                )
+        )
     }
 }

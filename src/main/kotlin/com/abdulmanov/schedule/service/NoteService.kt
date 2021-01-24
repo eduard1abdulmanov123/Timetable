@@ -18,6 +18,7 @@ class NoteService(
         val note = Note(
                 content = noteDto.content,
                 date = noteDto.date,
+                time = noteDto.time,
                 visibility = noteDto.visibility,
                 user = user
         )
@@ -38,6 +39,7 @@ class NoteService(
         val updateNote = note.get().copy(
                 content = noteDto.content,
                 date = noteDto.date,
+                time = noteDto.time,
                 visibility = noteDto.visibility
         )
 
@@ -69,6 +71,6 @@ class NoteService(
         val timetable = timetableRepository.findById(user.currentTimetableId)
         val ownerUser = appUserRepository.findByUsername(timetable.get().creatorUsername)
 
-        return noteRepository.findByUser(ownerUser!!)
+        return noteRepository.findByUser(ownerUser!!).filter { it.visibility || user.username == timetable.get().creatorUsername}
     }
 }

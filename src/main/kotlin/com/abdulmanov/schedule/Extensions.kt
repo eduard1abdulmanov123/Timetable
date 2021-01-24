@@ -9,8 +9,8 @@ fun AppUser.checkRightsEditTimetable(timetable: Timetable):Boolean{
     return username == timetable.creatorUsername
 }
 
-fun Exception.createBadRequest(): ResponseEntity<Any>{
-    val response = hashMapOf("status" to "error", "message" to message)
+fun Exception.createBadRequest(status: String = "error"): ResponseEntity<Any>{
+    val response = hashMapOf("status" to status, "message" to message)
     return ResponseEntity.badRequest().body(response)
 }
 

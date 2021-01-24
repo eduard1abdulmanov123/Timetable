@@ -8,5 +8,5 @@ data class OneTimeClassDto(
         val color: String,
         val startOfClass: String,
         val endOfClass: String,
-        val dateOfClass: Long = 0
+        val dateOfClass: String,
 )

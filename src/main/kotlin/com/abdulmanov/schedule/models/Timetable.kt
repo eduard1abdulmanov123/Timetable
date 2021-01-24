@@ -15,13 +15,13 @@ data class Timetable @JvmOverloads constructor(
         val creatorUsername: String = "",
 
         @Column(name = COLUMN_LINK)
-        val link: String = "",
+        var link: String = "",
 
-        @Column(name = COLUMN_DATE_CREATED)
-        val dateCreated: Long = 0,
+        @Column(name = COLUMN_DATE_UPDATE)
+        val dateUpdate: Long = 0,
 
-        @Column(name = COLUMN_WEEK_NUMBER)
-        val weekNumber: Int = 0,
+        @Column(name = COLUMN_TYPE_WEEK)
+        val typeWeek: Int = 0,
 
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "timetable")
         val multipleClasses: List<MultipleClass> = listOf(),
@@ -35,8 +35,8 @@ data class Timetable @JvmOverloads constructor(
 
         const val COLUMN_ID = "timetable_id"
         const val COLUMN_CREATOR_USERNAME = "timetable_creator"
-        const val COLUMN_DATE_CREATED = "timetable_date_created"
         const val COLUMN_LINK = "timetable_link"
-        const val COLUMN_WEEK_NUMBER = "timetable_week_number"
+        const val COLUMN_DATE_UPDATE = "timetable_date_update"
+        const val COLUMN_TYPE_WEEK = "timetable_type_week"
     }
 }

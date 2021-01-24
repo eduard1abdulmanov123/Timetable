@@ -16,7 +16,10 @@ data class Note @JvmOverloads constructor(
         val content: String = "",
 
         @Column(name = COLUMN_DATE)
-        val date: Long = 0,
+        val date: String = "",
+
+        @Column(name = COLUMN_TIME)
+        val time: String = "",
 
         @Column(name = COLUMN_VISIBILITY)
         val visibility: Boolean = false,
@@ -33,6 +36,7 @@ data class Note @JvmOverloads constructor(
         const val COLUMN_ID = "note_id"
         const val COLUMN_CONTENT = "note_content"
         const val COLUMN_DATE = "note_date"
+        const val COLUMN_TIME = "note_tme"
         const val COLUMN_VISIBILITY = "note_visibility"
     }
 }
