@@ -18,7 +18,7 @@ data class Timetable @JvmOverloads constructor(
         var link: String = "",
 
         @Column(name = COLUMN_DATE_UPDATE)
-        val dateUpdate: Long = 0,
+        val dateUpdate: String = "",
 
         @Column(name = COLUMN_TYPE_WEEK)
         val typeWeek: Int = 0,

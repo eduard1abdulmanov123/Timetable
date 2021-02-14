@@ -5,6 +5,7 @@ import com.abdulmanov.schedule.models.AppUser
 import com.abdulmanov.schedule.models.Timetable
 import com.abdulmanov.schedule.repositories.*
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.util.*
 
 @Service
@@ -20,7 +21,7 @@ class TimetableService(
         val defaultTimetable = createDefaultTimetable(user, timetableInfoDto)
 
         val createdTimetable = timetableRepository.save(defaultTimetable).run {
-            val updatedTimetable = copy(link = "/api/v1/timetable/join/${id}")
+            val updatedTimetable = copy(link = "api/v1/timetable/join/${id}")
             timetableRepository.save(updatedTimetable)
         }
 
@@ -54,7 +55,7 @@ class TimetableService(
 
         val updateTimetable = timetable.get().copy(
                 typeWeek = timetableInfoDto.typeWeek,
-                dateUpdate = Calendar.getInstance().timeInMillis
+                dateUpdate = LocalDate.now().toString()
         )
 
         return timetableRepository.save(updateTimetable)
@@ -113,7 +114,7 @@ class TimetableService(
     private fun createDefaultTimetable(user: AppUser, timetableInfoDto: TimetableInfoDto?): Timetable{
         return Timetable(
                 creatorUsername = user.username,
-                dateUpdate = Calendar.getInstance().timeInMillis,
+                dateUpdate = LocalDate.now().toString(),
                 typeWeek = timetableInfoDto?.typeWeek ?: 1
         )
     }

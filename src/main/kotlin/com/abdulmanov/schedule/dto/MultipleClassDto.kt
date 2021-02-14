@@ -5,9 +5,16 @@ data class MultipleClassDto(
         val nameTeacher: String = "",
         val audience: String = "",
         val typeClass: String = "",
-        val color: String = "",
         val startOfClass: String = "",
         val endOfClass: String = "",
-        val dayOfWeek: Int = 0,
-        val periodicity: Int = 0
-)
+        val dayOfWeek: Int = -1,
+        val periodicity: Int = -1
+){
+
+    fun isAllFieldsNotEmpty(): Boolean {
+        return nameSubject.isNotEmpty() && nameTeacher.isNotEmpty()
+                && audience.isNotEmpty() && typeClass.isNotEmpty()
+                && startOfClass.isNotEmpty() && endOfClass.isNotEmpty()
+                && dayOfWeek != -1 && periodicity != -1
+    }
+}

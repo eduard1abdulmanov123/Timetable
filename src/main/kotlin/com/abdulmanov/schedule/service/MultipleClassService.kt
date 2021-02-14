@@ -11,25 +11,24 @@ import org.springframework.stereotype.Service
 
 @Service
 class MultipleClassService(
-        private val timetableService: TimetableService,
         private val timetableRepository: TimetableRepository,
         private val multipleClassRepository: MultipleClassRepository,
         private val canceledClassRepository: CanceledClassRepository
 ) {
 
     fun create(user: AppUser, multipleClassDto: MultipleClassDto): MultipleClass {
-        if(user.currentTimetableId == null){
-            timetableService.create(user)
-        }
-
         val timetable = timetableRepository.findById(user.currentTimetableId!!)
 
-        if(timetable.isEmpty){
-            throw Exception("Расписание не существует")
-        }
-
-        if(!user.checkRightsEditTimetable(timetable.get())){
-            throw Exception("У вас нет прав на редактирование данного расписания")
+        when {
+            timetable.isEmpty -> {
+                throw Exception("Расписание не существует!")
+            }
+            !user.checkRightsEditTimetable(timetable.get()) -> {
+                throw Exception("У вас нет прав на редактирование данного расписания!")
+            }
+            !multipleClassDto.isAllFieldsNotEmpty() -> {
+                throw Exception("Не все поля заполнены!")
+            }
         }
 
         val multipleClass = MultipleClass(
@@ -37,7 +36,6 @@ class MultipleClassService(
                 nameTeacher = multipleClassDto.nameTeacher,
                 audience = multipleClassDto.audience,
                 typeClass = multipleClassDto.typeClass,
-                color = multipleClassDto.color,
                 startOfClass = multipleClassDto.startOfClass,
                 endOfClass = multipleClassDto.endOfClass,
                 dayOfWeek = multipleClassDto.dayOfWeek,
@@ -51,12 +49,16 @@ class MultipleClassService(
     fun update(user: AppUser, multipleClassId: Int, multipleClassDto: MultipleClassDto): MultipleClass {
         val multipleClass = multipleClassRepository.findById(multipleClassId)
 
-        if(multipleClass.isEmpty){
-            throw Exception("Данного занятия не существует")
-        }
-
-        if(!user.checkRightsEditTimetable(multipleClass.get().timetable)){
-            throw Exception("У вас нет прав на редактирование данного расписания")
+        when {
+            multipleClass.isEmpty -> {
+                throw Exception("Данного занятия не существует!")
+            }
+            !user.checkRightsEditTimetable(multipleClass.get().timetable) -> {
+                throw Exception("У вас нет прав на редактирование данного расписания!")
+            }
+            !multipleClassDto.isAllFieldsNotEmpty() -> {
+                throw Exception("Не все поля заполнены!")
+            }
         }
 
         val updatedMultipleClass = multipleClass.get().copy(
@@ -64,7 +66,6 @@ class MultipleClassService(
                 nameTeacher = multipleClassDto.nameTeacher,
                 audience = multipleClassDto.audience,
                 typeClass = multipleClassDto.typeClass,
-                color = multipleClassDto.color,
                 startOfClass = multipleClassDto.startOfClass,
                 endOfClass = multipleClassDto.endOfClass,
                 dayOfWeek = multipleClassDto.dayOfWeek,
@@ -77,12 +78,13 @@ class MultipleClassService(
     fun delete(user: AppUser, multipleClassId: Int) {
         val multipleClass = multipleClassRepository.findById(multipleClassId)
 
-        if(multipleClass.isEmpty){
-            throw Exception("Данного занятия не существует")
-        }
-
-        if(!user.checkRightsEditTimetable(multipleClass.get().timetable)){
-            throw Exception("У вас нет прав на редактирование данного расписания")
+        when {
+            multipleClass.isEmpty -> {
+                throw Exception("Данного занятия не существует")
+            }
+            !user.checkRightsEditTimetable(multipleClass.get().timetable) -> {
+                throw Exception("У вас нет прав на редактирование данного расписания")
+            }
         }
 
         if(multipleClass.get().canceledClasses.isNotEmpty()) {
