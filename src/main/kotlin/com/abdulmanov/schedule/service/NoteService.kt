@@ -15,6 +15,12 @@ class NoteService(
         private val appUserRepository: AppUserRepository
 ) {
     fun create(user: AppUser, noteDto: NoteDto): Note {
+        when {
+            !noteDto.isAllFieldsNotEmpty() -> {
+                throw Exception("Не все поля заполнены!")
+            }
+        }
+
         val note = Note(
                 content = noteDto.content,
                 date = noteDto.date,
@@ -22,18 +28,23 @@ class NoteService(
                 visibility = noteDto.visibility,
                 user = user
         )
+
         return noteRepository.save(note)
     }
 
     fun update(user: AppUser, noteId: Int, noteDto: NoteDto): Note {
         val note = noteRepository.findById(noteId)
 
-        if(note.isEmpty){
-            throw Exception("Данной заметки не существует")
-        }
-
-        if(note.get().user != user){
-            throw Exception("Нет доступа к данной заметки")
+        when {
+            note.isEmpty -> {
+                throw Exception("Данной заметки не существует")
+            }
+            note.get().user != user -> {
+                throw Exception("Нет доступа к данной заметки")
+            }
+            !noteDto.isAllFieldsNotEmpty() -> {
+                throw Exception("Не все поля заполнены!")
+            }
         }
 
         val updateNote = note.get().copy(
@@ -49,14 +60,15 @@ class NoteService(
     fun delete(user: AppUser, noteId: Int) {
         val note = noteRepository.findById(noteId)
 
-        if(note.isEmpty){
-            throw Exception("Данной заметки не существует")
+        when {
+            note.isEmpty -> {
+                throw Exception("Данной заметки не существует")
+            }
+            note.get().user != user -> {
+                throw Exception("Нет доступа к данной заметки")
+            }
         }
-
-        if(note.get().user != user){
-            throw Exception("Нет доступа к данной заметки")
-        }
-
+        
         noteRepository.delete(note.get())
     }
 
