@@ -14,7 +14,8 @@ class TimetableService(
         private val timetableRepository: TimetableRepository,
         private val oneTimeClassRepository: OneTimeClassRepository,
         private val multipleClassRepository: MultipleClassRepository,
-        private val canceledClassRepository: CanceledClassRepository
+        private val canceledClassRepository: CanceledClassRepository,
+        private val noteRepository: NoteRepository
 ) {
 
     fun create(user: AppUser, timetableInfoDto: TimetableInfoDto? = null): Timetable{
@@ -73,6 +74,26 @@ class TimetableService(
         }
 
         return timetable.get()
+    }
+
+    fun removeAll(user: AppUser) {
+        if(user.currentTimetableId == null){
+            throw Exception(USER_IS_NOT_CONNECT)
+        }
+
+        val timetable = timetableRepository.findById(user.currentTimetableId)
+
+        if(timetable.isEmpty){
+            throw Exception(EMPTY_TIMETABLE_ERROR)
+        }
+
+        oneTimeClassRepository.deleteAll(timetable.get().oneTimeClasses)
+
+        timetable.get().multipleClasses.forEach { canceledClassRepository.deleteAll(it.canceledClasses) }
+        multipleClassRepository.deleteAll(timetable.get().multipleClasses)
+
+        val isGroupNotes = noteRepository.findByUser(user).filter { it.visibility }
+        noteRepository.deleteAll(isGroupNotes)
     }
 
     private fun determineFateOldTimetable(user: AppUser, timetable: Timetable){

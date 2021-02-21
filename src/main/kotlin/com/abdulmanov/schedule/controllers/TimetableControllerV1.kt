@@ -59,11 +59,29 @@ class TimetableControllerV1(
             val timetable = timetableService.get(user)
             ResponseEntity.ok(timetable)
         }catch (e:Exception){
-            if(e.message == TimetableService.EMPTY_TIMETABLE_ERROR){
-                e.createBadRequest("empty_timetable")
-            }else {
-                e.createBadRequest()
+            when (e.message) {
+                TimetableService.EMPTY_TIMETABLE_ERROR -> {
+                    e.createBadRequest("empty_timetable")
+                }
+                TimetableService.USER_IS_NOT_CONNECT -> {
+                    e.createBadRequest("user_is_not_connect")
+                }
+                else -> {
+                    e.createBadRequest()
+                }
             }
+        }
+    }
+
+    @PostMapping("/removeAll")
+    fun removeAll(request: HttpServletRequest): ResponseEntity<Any> {
+        val user = jwtTokenProvider.getUser(request)
+
+        return try {
+            timetableService.removeAll(user)
+            ResponseEntity.ok("success")
+        }catch (e:Exception){
+            e.createBadRequest()
         }
     }
 }

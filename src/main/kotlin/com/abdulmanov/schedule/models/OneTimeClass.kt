@@ -24,9 +24,6 @@ data class OneTimeClass @JvmOverloads constructor(
         @Column(name = COLUMN_TYPE_CLASS)
         val typeClass: String = "",
 
-        @Column(name = COLUMN_COLOR)
-        val color: String = "",
-
         @Column(name = COLUMN_START_OF_CLASS)
         val startOfClass: String = "",
 
@@ -50,7 +47,6 @@ data class OneTimeClass @JvmOverloads constructor(
         const val COLUMN_NAME_TEACHER = "name_teacher"
         const val COLUMN_AUDIENCE = "audience"
         const val COLUMN_TYPE_CLASS = "type_class"
-        const val COLUMN_COLOR = "color"
         const val COLUMN_START_OF_CLASS = "start_of_class"
         const val COLUMN_END_OF_CLASS = "end_of_class"
         const val COLUMN_DATE_OF_CLASS = "date_of_class"

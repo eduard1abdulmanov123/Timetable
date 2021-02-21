@@ -1,5 +1,6 @@
 package com.abdulmanov.schedule.controllers
 
+import com.abdulmanov.schedule.createBadRequest
 import com.abdulmanov.schedule.dto.UserDto
 import com.abdulmanov.schedule.models.AppUser
 import com.abdulmanov.schedule.repositories.AppUserRepository
@@ -24,34 +25,34 @@ class AuthControllerV1(
         private val passwordEncoder: PasswordEncoder
 ){
     @PostMapping("/sing-up")
-    fun singUp(@RequestBody userDto: UserDto): ResponseEntity<HashMap<String, Any?>>{
+    fun singUp(@RequestBody userDto: UserDto): ResponseEntity<Any>{
         return try {
             if(userRepository.existsByUsername(userDto.username)){
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
+                throw Exception("Пользователь с таким логином уже существует")
             }
 
             val appUser = saveUserToDatabase(userDto)
 
             authenticate(userDto.username, userDto.password)
             generateAnswerWithJwtToken(appUser)
-        }catch (e: AuthenticationException){
-            ResponseEntity(HttpStatus.FORBIDDEN)
+        }catch (e: Exception){
+            e.createBadRequest()
         }
     }
 
     @PostMapping("/sing-in")
-    fun singIn(@RequestBody userDto: UserDto): ResponseEntity<HashMap<String, Any?>> {
+    fun singIn(@RequestBody userDto: UserDto): ResponseEntity<Any> {
         return try{
             if(!userRepository.existsByUsername(userDto.username)){
-                return ResponseEntity(HttpStatus.BAD_REQUEST)
+                throw Exception("Пользователя с таким логином не существует")
             }
 
             val appUser = userRepository.findByUsername(userDto.username)!!
 
             authenticate(userDto.username, userDto.password)
             generateAnswerWithJwtToken(appUser)
-        }catch (e: AuthenticationException){
-            ResponseEntity(HttpStatus.FORBIDDEN)
+        }catch (e: Exception){
+            e.createBadRequest()
         }
     }
 
@@ -65,7 +66,7 @@ class AuthControllerV1(
         authenticationManager.authenticate(usernamePasswordAuthenticationToken)
     }
 
-    private fun generateAnswerWithJwtToken(appUser: AppUser): ResponseEntity<HashMap<String, Any?>>{
+    private fun generateAnswerWithJwtToken(appUser: AppUser): ResponseEntity<Any>{
         val token = jwtTokenProvider.createToken(appUser.username)
         return ResponseEntity.ok(
                 hashMapOf(
