@@ -1,6 +1,7 @@
 package com.abdulmanov.schedule.controllers
 
 import com.abdulmanov.schedule.createBadRequest
+import com.abdulmanov.schedule.dto.RefreshTokenDto
 import com.abdulmanov.schedule.dto.UserDto
 import com.abdulmanov.schedule.models.AppUser
 import com.abdulmanov.schedule.repositories.AppUserRepository
@@ -10,10 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import javax.naming.AuthenticationException
 
 @RestController
@@ -56,6 +54,21 @@ class AuthControllerV1(
         }
     }
 
+    @PostMapping("/refreshToken")
+    fun refreshToken(@RequestBody refreshTokenDto: RefreshTokenDto): ResponseEntity<Any>{
+        return try {
+            val username = jwtTokenProvider.getUsername(refreshTokenDto.refreshToken)
+
+            if(jwtTokenProvider.validateToken(refreshTokenDto.refreshToken)){
+                generateAnswerRefreshJwtToken(username)
+            }else{
+                throw Exception(REFRESH_TOKEN_IS_NOT_VALIDATE)
+            }
+        } catch(e: Exception) {
+            e.createBadRequest()
+        }
+    }
+
     private fun saveUserToDatabase(userDto: UserDto): AppUser{
         val user = AppUser(username = userDto.username, password = passwordEncoder.encode(userDto.password))
         return userRepository.save(user)
@@ -68,12 +81,29 @@ class AuthControllerV1(
 
     private fun generateAnswerWithJwtToken(appUser: AppUser): ResponseEntity<Any>{
         val token = jwtTokenProvider.createToken(appUser.username)
+        val refreshToken = jwtTokenProvider.createRefreshToken(appUser.username)
         return ResponseEntity.ok(
                 hashMapOf(
                         "username" to appUser.username,
                         "token" to token,
+                        "refreshToken" to refreshToken,
                         "currentTimetableId" to appUser.currentTimetableId
                 )
         )
+    }
+
+    private fun generateAnswerRefreshJwtToken(username: String): ResponseEntity<Any> {
+        val token = jwtTokenProvider.createToken(username)
+        val refreshToken = jwtTokenProvider.createRefreshToken(username)
+        return ResponseEntity.ok(
+                hashMapOf(
+                        "token" to token,
+                        "refreshToken" to refreshToken
+                )
+        )
+    }
+
+    companion object {
+        private const val REFRESH_TOKEN_IS_NOT_VALIDATE = "Refresh Token не валиден"
     }
 }

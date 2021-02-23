@@ -1,6 +1,7 @@
 package com.abdulmanov.schedule.models
 
 import com.abdulmanov.schedule.models.AppUser.Companion.TABLE_NAME
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -12,7 +13,7 @@ data class AppUser @JvmOverloads constructor(
 
         @Column(name = COLUMN_PASSWORD)
         val password: String = "",
-        
+
         @Column(name = COLUMN_CURRENT_TIMETABLE_ID)
         val currentTimetableId: Int? = null,
 

@@ -25,6 +25,7 @@ class SecurityConfig(
                 .authorizeRequests()
                 .antMatchers(SecurityConstants.SING_IN).permitAll()
                 .antMatchers(SecurityConstants.SING_UP).permitAll()
+                .antMatchers(SecurityConstants.REFRESH_TOKEN).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .apply(jwtConfiguration)

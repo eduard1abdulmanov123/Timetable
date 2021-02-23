@@ -112,6 +112,9 @@ class TimetableService(
                     multipleClassRepository.deleteAll(userTimetable.get().multipleClasses)
                     timetableRepository.delete(userTimetable.get())
 
+                    val isGroupNotes = noteRepository.findByUser(user).filter { it.visibility }
+                    noteRepository.deleteAll(isGroupNotes)
+
                     clearBindingToTimetable(userTimetable.get())
                 }
 

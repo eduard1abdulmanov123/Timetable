@@ -23,12 +23,10 @@ class JwtTokenFilter(private val jwtTokenProvider: JwtTokenProvider): GenericFil
                     SecurityContextHolder.getContext().authentication = authentication
                 }
             }
+            chain.doFilter(request, response)
         }catch (e: JwtAuthenticationException){
             SecurityContextHolder.clearContext()
             (response as HttpServletResponse).sendError(e.status.value(), e.message)
-            throw e.copy()
         }
-
-        chain.doFilter(request, response)
     }
 }

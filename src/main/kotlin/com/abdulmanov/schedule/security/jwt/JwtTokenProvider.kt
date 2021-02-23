@@ -36,6 +36,19 @@ class JwtTokenProvider(
                 .compact()
     }
 
+    fun createRefreshToken(username: String): String {
+        val claims = Jwts.claims().setSubject(username)
+        val issuedAt = Date()
+        val expiration = Date(issuedAt.time + SecurityConstants.REFRESH_EXPIRATION_TIME)
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expiration)
+                .signWith(SignatureAlgorithm.HS512,secretKey)
+                .compact()
+    }
+
     fun validateToken(token: String): Boolean {
         try {
             val claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)

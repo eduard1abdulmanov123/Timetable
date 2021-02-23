@@ -30,6 +30,8 @@ data class Note @JvmOverloads constructor(
         val user: AppUser
 ) {
 
+    val username: String get() = user.username
+
     companion object{
         const val TABLE_NAME = "note"
 
