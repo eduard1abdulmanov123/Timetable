@@ -8,7 +8,8 @@ data class MultipleClassDto(
         val startOfClass: String = "",
         val endOfClass: String = "",
         val dayOfWeek: Int = -1,
-        val periodicity: Int = -1
+        val periodicity: Int = -1,
+        val canceledClasses: String = ""
 ){
 
     fun isAllFieldsNotEmpty(): Boolean {

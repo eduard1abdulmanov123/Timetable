@@ -4,7 +4,6 @@ import com.abdulmanov.schedule.checkRightsEditTimetable
 import com.abdulmanov.schedule.dto.MultipleClassDto
 import com.abdulmanov.schedule.models.AppUser
 import com.abdulmanov.schedule.models.MultipleClass
-import com.abdulmanov.schedule.repositories.CanceledClassRepository
 import com.abdulmanov.schedule.repositories.MultipleClassRepository
 import com.abdulmanov.schedule.repositories.TimetableRepository
 import org.springframework.stereotype.Service
@@ -12,8 +11,7 @@ import org.springframework.stereotype.Service
 @Service
 class MultipleClassService(
         private val timetableRepository: TimetableRepository,
-        private val multipleClassRepository: MultipleClassRepository,
-        private val canceledClassRepository: CanceledClassRepository
+        private val multipleClassRepository: MultipleClassRepository
 ) {
 
     fun create(user: AppUser, multipleClassDto: MultipleClassDto): MultipleClass {
@@ -40,6 +38,7 @@ class MultipleClassService(
                 endOfClass = multipleClassDto.endOfClass,
                 dayOfWeek = multipleClassDto.dayOfWeek,
                 periodicity = multipleClassDto.periodicity,
+                canceledClasses = multipleClassDto.canceledClasses,
                 timetable = timetable.get()
         )
 
@@ -69,7 +68,8 @@ class MultipleClassService(
                 startOfClass = multipleClassDto.startOfClass,
                 endOfClass = multipleClassDto.endOfClass,
                 dayOfWeek = multipleClassDto.dayOfWeek,
-                periodicity = multipleClassDto.periodicity
+                periodicity = multipleClassDto.periodicity,
+                canceledClasses = multipleClassDto.canceledClasses
         )
 
         return multipleClassRepository.save(updatedMultipleClass)
@@ -85,10 +85,6 @@ class MultipleClassService(
             !user.checkRightsEditTimetable(multipleClass.get().timetable) -> {
                 throw Exception("У вас нет прав на редактирование данного расписания")
             }
-        }
-
-        if(multipleClass.get().canceledClasses.isNotEmpty()) {
-            canceledClassRepository.deleteAll(multipleClass.get().canceledClasses)
         }
 
         multipleClassRepository.delete(multipleClass.get())

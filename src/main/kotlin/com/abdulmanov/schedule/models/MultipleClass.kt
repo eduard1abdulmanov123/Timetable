@@ -37,8 +37,8 @@ data class MultipleClass @JvmOverloads constructor(
         @Column(name = COLUMN_PERIODICITY)
         val periodicity: Int = 0,
 
-        @OneToMany(fetch = FetchType.EAGER, mappedBy = "multipleClass")
-        val canceledClasses: List<CanceledClass> = listOf(),
+        @Column(name = COLUMN_CANCELED_CLASSES)
+        val canceledClasses: String = "",
 
         @JsonIgnore
         @ManyToOne(fetch = FetchType.LAZY)
@@ -58,5 +58,6 @@ data class MultipleClass @JvmOverloads constructor(
         const val COLUMN_END_OF_CLASS = "end_of_class"
         const val COLUMN_DAY_OF_WEEK = "day_of_week"
         const val COLUMN_PERIODICITY = "periodicity"
+        const val COLUMN_CANCELED_CLASSES = "canceled_classes"
     }
 }

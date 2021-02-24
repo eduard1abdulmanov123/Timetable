@@ -14,7 +14,6 @@ class TimetableService(
         private val timetableRepository: TimetableRepository,
         private val oneTimeClassRepository: OneTimeClassRepository,
         private val multipleClassRepository: MultipleClassRepository,
-        private val canceledClassRepository: CanceledClassRepository,
         private val noteRepository: NoteRepository
 ) {
 
@@ -88,8 +87,6 @@ class TimetableService(
         }
 
         oneTimeClassRepository.deleteAll(timetable.get().oneTimeClasses)
-
-        timetable.get().multipleClasses.forEach { canceledClassRepository.deleteAll(it.canceledClasses) }
         multipleClassRepository.deleteAll(timetable.get().multipleClasses)
 
         val isGroupNotes = noteRepository.findByUser(user).filter { it.visibility }
@@ -106,9 +103,6 @@ class TimetableService(
 
                 if(user.username == userTimetable.get().creatorUsername){
                     oneTimeClassRepository.deleteAll(userTimetable.get().oneTimeClasses)
-                    userTimetable.get().multipleClasses.forEach {
-                        canceledClassRepository.deleteAll(it.canceledClasses)
-                    }
                     multipleClassRepository.deleteAll(userTimetable.get().multipleClasses)
                     timetableRepository.delete(userTimetable.get())
 
