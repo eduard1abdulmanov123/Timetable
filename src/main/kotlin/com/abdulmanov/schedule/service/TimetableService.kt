@@ -133,7 +133,8 @@ class TimetableService(
         return Timetable(
                 creatorUsername = user.username,
                 dateUpdate = LocalDate.now().toString(),
-                typeWeek = timetableInfoDto?.typeWeek ?: 1
+                typeWeek = timetableInfoDto?.typeWeek ?: 1,
+                timeZone = timetableInfoDto?.timeZone ?: ""
         )
     }
 

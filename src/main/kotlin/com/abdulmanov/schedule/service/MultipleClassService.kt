@@ -4,6 +4,7 @@ import com.abdulmanov.schedule.*
 import com.abdulmanov.schedule.dto.MultipleClassDto
 import com.abdulmanov.schedule.models.AppUser
 import com.abdulmanov.schedule.models.MultipleClass
+import com.abdulmanov.schedule.notifications.ServiceNotification
 import com.abdulmanov.schedule.repositories.AppUserRepository
 import com.abdulmanov.schedule.repositories.FcmTokensRepository
 import com.abdulmanov.schedule.repositories.MultipleClassRepository

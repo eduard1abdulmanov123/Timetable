@@ -5,6 +5,7 @@ import com.abdulmanov.schedule.getFormattedDate
 import com.abdulmanov.schedule.getTokens
 import com.abdulmanov.schedule.models.AppUser
 import com.abdulmanov.schedule.models.Note
+import com.abdulmanov.schedule.notifications.ServiceNotification
 import com.abdulmanov.schedule.repositories.AppUserRepository
 import com.abdulmanov.schedule.repositories.FcmTokensRepository
 import com.abdulmanov.schedule.repositories.NoteRepository

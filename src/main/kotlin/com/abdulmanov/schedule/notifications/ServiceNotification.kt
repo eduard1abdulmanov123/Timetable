@@ -1,4 +1,4 @@
-package com.abdulmanov.schedule.service
+package com.abdulmanov.schedule.notifications
 
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.MulticastMessage

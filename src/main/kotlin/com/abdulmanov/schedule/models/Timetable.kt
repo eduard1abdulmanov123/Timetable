@@ -23,6 +23,9 @@ data class Timetable @JvmOverloads constructor(
         @Column(name = COLUMN_TYPE_WEEK)
         val typeWeek: Int = 0,
 
+        @Column(name = COLUMN_TIME_ZONE)
+        val timeZone: String = "",
+
         @OneToMany(fetch = FetchType.LAZY, mappedBy = "timetable")
         val multipleClasses: List<MultipleClass> = listOf(),
 
@@ -38,5 +41,6 @@ data class Timetable @JvmOverloads constructor(
         const val COLUMN_LINK = "timetable_link"
         const val COLUMN_DATE_UPDATE = "timetable_date_update"
         const val COLUMN_TYPE_WEEK = "timetable_type_week"
+        const val COLUMN_TIME_ZONE = "timetable_time_zone"
     }
 }
